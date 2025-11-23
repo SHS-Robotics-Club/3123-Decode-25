@@ -132,4 +132,47 @@ public class Drivetrain {
         fR.setPower( ((powerY - powerX - powerRotate) / powerMax) * powerFactor );
         bR.setPower( ((powerY + powerX - powerRotate) / powerMax) * powerFactor );
     }
+
+    /**
+     * Stops all drivetrain motors.
+     */
+    public void stop() {
+        if (fL != null) fL.setPower(0.0);
+        if (fR != null) fR.setPower(0.0);
+        if (bL != null) bL.setPower(0.0);
+        if (bR != null) bR.setPower(0.0);
+    }
+
+    /**
+     * Drive forward or backward using existing mecanum math.
+     * Positive powerY drives forward, negative drives backward.
+     *
+     * @param powerY      forward/backward command (-1.0 to +1.0)
+     * @param powerFactor global drivetrain power factor (0.0 to 1.0)
+     */
+    public void driveForwardPower(double powerY, double powerFactor) {
+        operate(0.0, powerY, 0.0, powerFactor);
+    }
+
+    /**
+     * Strafe left/right using existing mecanum math.
+     * Positive powerX strafes right, negative strafes left.
+     *
+     * @param powerX      strafe command (-1.0 to +1.0)
+     * @param powerFactor global drivetrain power factor (0.0 to 1.0)
+     */
+    public void strafePower(double powerX, double powerFactor) {
+        operate(powerX, 0.0, 0.0, powerFactor);
+    }
+
+    /**
+     * Rotate in place using existing mecanum math.
+     *
+     * @param powerRotate rotation command (-1.0 to +1.0)
+     * @param powerFactor global drivetrain power factor (0.0 to 1.0)
+     */
+    public void rotatePower(double powerRotate, double powerFactor) {
+        operate(0.0, 0.0, powerRotate, powerFactor);
+    }
+
 }
