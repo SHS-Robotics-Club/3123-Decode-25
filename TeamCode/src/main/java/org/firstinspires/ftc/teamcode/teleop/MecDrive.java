@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.teleop;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.utils.TelemetryManager;
 
 //@Disabled
 // Possible Groups: Competition, Development, Test, Training
@@ -28,6 +29,9 @@ public class MecDrive extends OpMode {
 
     // Define as instance of a Robot class as null
     private Robot robot;
+    // Define TelemetryManager
+    private TelemetryManager telemetryManager;
+
     // Define local parameters
     private double drivetrainPowerDirX;
     private double drivetrainPowerDirY;
@@ -55,6 +59,7 @@ public class MecDrive extends OpMode {
         }
         // Initialize robot subsystems
         robot.getDrivetrain().init();
+        telemetryManager = robot.getTelemetryManager();
 
         // Set default telemetry
         telemetry.addData("Status", "Initialized");
@@ -68,12 +73,22 @@ public class MecDrive extends OpMode {
      */
     @Override
     public void init_loop() {
-
-        // Report telemetry while waiting
+        // Report drivetrain telemetry
         telemetry.addData("Status", "Initialized");
         robot.getDrivetrain().reportTelemetry();
         telemetry.addData("Power Factor", drivetrainPowerFactor);
-        telemetry.update(); // Send "Initialized" and powerFactor to
+
+        // Conditionally report LED status if present
+        if (robot.getLedIndicator() != null) {
+            telemetry.addData("LED", "Ready indicator available");
+        } else {
+            telemetry.addData("LED", "Ready indicator not present");
+        }
+
+        telemetryManager.addStatus("Running");
+        telemetryManager.addDrivetrainData(drivetrainPowerFactor, drivetrainPowerDirX, drivetrainPowerDirY, drivetrainPowerRotate);
+        // Update telemetry once after all data is added
+        telemetry.update();
     }
 
     /**
@@ -121,6 +136,10 @@ public class MecDrive extends OpMode {
         drivetrainPowerRotate = gamepad1.right_stick_x;
         // Request power application to drivetrain
         robot.getDrivetrain().operate(drivetrainPowerDirX, drivetrainPowerDirY, drivetrainPowerRotate, drivetrainPowerFactor);
+
+        telemetryManager.addStatus("Running");
+        telemetryManager.addDrivetrainData(drivetrainPowerFactor, drivetrainPowerDirX, drivetrainPowerDirY, drivetrainPowerRotate);
+        telemetryManager.update();
 
     }
 }
