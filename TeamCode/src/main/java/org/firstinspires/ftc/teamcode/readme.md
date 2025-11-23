@@ -1,3 +1,192 @@
+# TeamCode README
+
+This README provides an overview of the TeamCode module structure for the FTC robot codebase. It explains how subsystems, utilities, TeleOps, and Autonomous programs are organized so new programmers can quickly understand how to extend or modify the code.
+
+---
+
+## 1. Folder Structure
+
+```
+TeamCode/
+│
+├── Robot.java
+│
+├── autonomous/
+│   ├── AutoLeaveOnly.java
+│   ├── AutoParkOppGoal.java
+│   ├── AutoWallLane.java
+│
+├── subsystems/
+│   ├── Drivetrain.java
+│   ├── Shooter2Wheel.java
+│   ├── LedIndicator.java  (optional; if hardware missing, code handles gracefully)
+│   └── ... (future subsystems)
+│
+├── utils/
+│   ├── TelemetryManager.java
+│   ├── TimedDrive.java
+│   └── ... (shared helpers)
+│
+├── teleop/
+│   ├── MecDrive.java
+│   ├── TestShooter.java
+│   └── ... (future teleops)
+│
+└── ...
+```
+
+---
+
+## 2. Central Robot Class
+
+### `Robot.java`
+This class constructs and stores shared singletons for all subsystems and utilities.
+
+**Responsibilities**
+- Construct and initialize subsystems
+- Provide getters for TeleOps and Autos
+- Provide safety checks so missing hardware does not crash the OpMode
+
+---
+
+## 3. Subsystems
+
+Subsystems encapsulate hardware behavior. Each one typically has:
+
+- A constructor using `HardwareMap`
+- An `init()` method
+- An `operate()` or equivalent action method
+- A `reportTelemetry()` method
+
+### Example subsystem: `Drivetrain.java`
+Capabilities:
+- Mecanum drive
+- Field-agnostic coordinate system
+- Power factor scaling
+- Used by both TeleOp and Autonomous
+
+### `LedIndicator.java`
+- Supports optional LED hardware
+- Constructor catches missing hardware and continues safely
+
+---
+
+## 4. Utility Classes
+
+Utilities provide reusable features for all TeleOps and Autos.
+
+### `TelemetryManager.java`
+- Centralized telemetry formatting
+- Adds subsystem-specific data consistently
+- Called in TeleOps and Autos
+
+### `TimedDrive.java`
+Provides *time-based* autonomous motion helpers.
+
+Example:
+```java
+TimedDrive.forward(drivetrain, 0.5, 800);
+TimedDrive.strafeLeft(drivetrain, 0.5, 600);
+TimedDrive.stop(drivetrain);
+```
+
+Benefits:
+- Cleaner autonomous code
+- Eliminates repeated boilerplate
+- Makes tuning easier
+
+---
+
+## 5. TeleOp Programs
+
+### `teleop/MecDrive.java`
+Primary driver-controlled OpMode.
+
+Features:
+- Left stick X/Y for translation
+- Right stick X for rotation
+- Adjustable power factor using gamepad A
+- Long-press turbo mode
+- Uses:
+  - `Robot`
+  - `Drivetrain`
+  - `TelemetryManager`
+
+Add additional TeleOps by copying this structure and adding new subsystems.
+
+---
+
+## 6. Autonomous Programs
+
+### `autonomous/AutoLeaveOnly.java`
+Purpose:
+- Score **3 Auto points** by leaving the starting tile
+
+Movement:
+- Timed forward drive using `TimedDrive`
+
+### `autonomous/AutoParkOppGoal.java`
+Purpose:
+- Leave starting tile (3 pts)
+- Drive to a fixed defensive parking location in front of opponent's goal (legal and aligned with strategy)
+
+### `autonomous/AutoWallLane.java`
+Purpose:
+- Perform a **13‑point** route:
+  - Leave tile (3 pts)
+  - Enter wall lane
+  - Drive forward into PARKING ZONE (10 pts)
+- Uses `TimedDrive` for clean readable code
+
+---
+
+## 7. Adding New Code
+
+### To add a new TeleOp:
+1. Create a class under `teleop/`
+2. Extend `OpMode` or `LinearOpMode`
+3. Create a `Robot robot = new Robot(hardwareMap, telemetry);`
+4. Call subsystem `.init()`
+5. Use subsystem methods in `loop()`
+
+### To add a new Autonomous:
+1. Create a class under `autonomous/`
+2. Extend `LinearOpMode`
+3. Use:
+   - `Robot`
+   - `Drivetrain`
+   - `TimedDrive`
+4. Combine timed movements to build routines
+
+---
+
+## 8. Helpful Notes for New Students
+
+- **All real robot behavior runs through subsystems**, not through TeleOps directly.
+- **TimedDrive** is the recommended way to write Autonomous early in the season.
+- **TelemetryManager** keeps output clean and consistent.
+- The robot structure is intentionally simple so new students can start modifying code safely.
+- TeleOps are for humans. Autonomous is for repeatable paths. Subsystems are for hardware.
+
+---
+
+## 9. Future Expansion Points
+
+- Add IMU + encoder fusion (optional)
+- Add an intake subsystem
+- Add an outtake/shooter subsystem
+- Add AprilTag-based localization
+- Add a separate `FieldConstants` class
+- Add path-following once robot matures
+
+---
+
+If you want, I can also:
+- add diagrams,
+- annotate classes,
+- generate JavaDocs,
+- or create a GitHub‑ready repo structure.
+
 ## TeamCode Module
 
 Welcome!
